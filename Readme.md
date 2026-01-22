@@ -15,9 +15,9 @@ This project runs a simple translation pipeline on GCP using:
 
 ## Quick steps (Cloud Shell)
 1) Set env:
-   export PROJECT_ID="YOUR_PROJECT_ID"
-   export REGION="asia-south1"
-   export BUCKET="YOUR_BUCKET"
+   export PROJECT_ID="haks-genai"
+   export REGION="us-central1"
+   export BUCKET="haks-bucket"
 
 2) Build + push image:
    gcloud services enable aiplatform.googleapis.com artifactregistry.googleapis.com cloudbuild.googleapis.com storage.googleapis.com

@@ -13,7 +13,6 @@ def translation_eval_component(
     and writes predictions + metrics to GCS.
     """
     import json
-    import os
     import pandas as pd
     from google.cloud import storage
 
@@ -48,8 +47,8 @@ def translation_eval_component(
     # 2) Prep
     df = load_parallel_csv(local_csv, source_col, target_col)
 
-    # 3) Translate
-    df["prediction"] = translate_dataframe(df, source_col, model_name=model_name, batch_size=8)
+    # 3) Translate (keep batch_size low to reduce CPU/RAM pressure)
+    df["prediction"] = translate_dataframe(df, source_col, model_name=model_name, batch_size=4)
 
     # 4) Metrics
     metrics = compute_bleu_chrf(
@@ -68,7 +67,6 @@ def translation_eval_component(
         json.dump(metrics, f, ensure_ascii=False, indent=2)
 
     # 6) Upload to GCS
-    # output_gcs_uri is a folder-like prefix, we write two objects under it
     if not output_gcs_uri.endswith("/"):
         output_gcs_uri += "/"
 
@@ -87,10 +85,17 @@ def pipeline(
     model_name: str = "Helsinki-NLP/opus-mt-en-hi",
     output_gcs_uri: str = "gs://YOUR_BUCKET/outputs/translation_eval/run_001/",
 ):
-    translation_eval_component(
+    task = translation_eval_component(
         gcs_csv_uri=gcs_csv_uri,
         source_col=source_col,
         target_col=target_col,
         model_name=model_name,
         output_gcs_uri=output_gcs_uri,
     )
+
+    # ✅ STEP A FIX: reduce requested resources so quota fits
+    # Start minimal (1 vCPU, 2Gi). Increase only if it fails due to memory.
+    task.set_cpu_limit("1")
+    task.set_memory_limit("2G")
+
+    # Optional: to keep costs low & avoid preemptible variability, leave as default.

@@ -1,8 +1,8 @@
 from google.cloud import aiplatform
 
-PROJECT_ID = "YOUR_PROJECT_ID"
-REGION = "asia-south1"
-BUCKET = "YOUR_BUCKET"
+PROJECT_ID = "haks-genai"
+REGION = "us-central1"
+BUCKET = "haks-bucket"
 
 aiplatform.init(project=PROJECT_ID, location=REGION, staging_bucket=f"gs://{BUCKET}")
 

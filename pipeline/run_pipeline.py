@@ -1,8 +1,8 @@
 from google.cloud import aiplatform
 
-PROJECT_ID = "haks-genai"
-REGION = "us-central1"
-BUCKET = "haks-bucket"
+PROJECT_ID = "YOUR_PROJECT_ID"
+REGION = "us-central1"  # ✅ match your failing region
+BUCKET = "YOUR_BUCKET"
 
 aiplatform.init(project=PROJECT_ID, location=REGION, staging_bucket=f"gs://{BUCKET}")
 
@@ -15,9 +15,10 @@ job = aiplatform.PipelineJob(
         "source_col": "source_text",
         "target_col": "target_text",
         "model_name": "Helsinki-NLP/opus-mt-en-hi",
-        "output_gcs_uri": f"gs://{BUCKET}/outputs/translation_eval/run_001/"
+        "output_gcs_uri": f"gs://{BUCKET}/outputs/translation_eval/run_002/"
     },
 )
 
 job.run()
 print("Pipeline submitted.")
+

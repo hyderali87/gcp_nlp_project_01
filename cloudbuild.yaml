@@ -1,0 +1,54 @@
+substitutions:
+  _REGION: "asia-south1"
+  _REPO: "mlops-repo"
+  _IMAGE: "nlp-translation"
+  _BUCKET: "YOUR_BUCKET_NAME"  # set once (or override in trigger)
+
+steps:
+  # 1) Build and push container image
+  - name: "gcr.io/cloud-builders/docker"
+    id: "Build image"
+    args:
+      - "build"
+      - "-t"
+      - "${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPO}/${_IMAGE}:$SHORT_SHA"
+      - "-t"
+      - "${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPO}/${_IMAGE}:latest"
+      - "."
+
+  - name: "gcr.io/cloud-builders/docker"
+    id: "Push image"
+    args:
+      - "push"
+      - "--all-tags"
+      - "${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPO}/${_IMAGE}"
+
+  # 2) Compile the KFP pipeline
+  - name: "python:3.11-slim"
+    id: "Compile pipeline"
+    entrypoint: "bash"
+    args:
+      - "-c"
+      - |
+        pip install --no-cache-dir -r requirements.txt
+        cd pipeline
+        python compile.py
+        ls -lh translation_pipeline.json
+
+  # 3) Run the Vertex pipeline (submit job)
+  - name: "python:3.11-slim"
+    id: "Submit pipeline"
+    entrypoint: "bash"
+    args:
+      - "-c"
+      - |
+        pip install --no-cache-dir -r requirements.txt
+        cd pipeline
+        # Export env vars expected by your run_pipeline.py (or set inside run_pipeline.py)
+        export PROJECT_ID=$PROJECT_ID
+        export REGION=${_REGION}
+        export BUCKET=${_BUCKET}
+        python run_pipeline.py
+
+options:
+  logging: CLOUD_LOGGING_ONLY

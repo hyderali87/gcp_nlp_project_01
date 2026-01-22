@@ -1,8 +1,8 @@
 from google.cloud import aiplatform
 
-PROJECT_ID = "YOUR_PROJECT_ID"
+PROJECT_ID = "haks-genai"
 REGION = "us-central1"  # ✅ match your failing region
-BUCKET = "YOUR_BUCKET"
+BUCKET = "haks-bucket"
 
 aiplatform.init(project=PROJECT_ID, location=REGION, staging_bucket=f"gs://{BUCKET}")
 

@@ -2,7 +2,7 @@ substitutions:
   _REGION: "asia-south1"
   _REPO: "mlops-repo"
   _IMAGE: "nlp-translation"
-  _BUCKET: "YOUR_BUCKET_NAME"  # set once (or override in trigger)
+  _BUCKET: "haks-bucket"  # set once (or override in trigger)
 
 steps:
   # 1) Build and push container image
